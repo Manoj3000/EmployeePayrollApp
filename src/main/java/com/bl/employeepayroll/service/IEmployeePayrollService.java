@@ -13,7 +13,7 @@ public interface IEmployeePayrollService {
 
 	public Employee getEmployee(long id);
 
-	public Employee updateEmployee(long id, Employee employee);
+	public Employee updateEmployee(long id, EmployeeDTO employeeDTO);
 
 	public void deleteEmployee(long id);
 

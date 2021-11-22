@@ -33,15 +33,16 @@ public class EmployeePayrollService implements IEmployeePayrollService {
 	}
 
 	@Override
-	public Employee updateEmployee(long id, Employee employee) {
+	public Employee updateEmployee(long id, EmployeeDTO employeeDTO) {
 		Employee emp = employeeRepo.findById(id).get();
-		emp.setName(employee.getName());
-		emp.setSalary(employee.getSalary());
-		emp.setGender(employee.getGender());
-		emp.setStartDate(employee.getStartDate());
-		emp.setNote(employee.getNote());
-		emp.setProfilePic(employee.getProfilePic());
-		emp.setDepartment(employee.getDepartment());
+		
+		emp.setName(employeeDTO.getName());
+		emp.setSalary(employeeDTO.getSalary());
+		emp.setGender(employeeDTO.getGender());
+		emp.setStartDate(employeeDTO.getStartDate());
+		emp.setNote(employeeDTO.getNote());
+		emp.setProfilePic(employeeDTO.getProfilePic());
+		emp.setDepartment(employeeDTO.getDepartment());
 		emp.setUpdated_at(LocalDateTime.now());
 		return employeeRepo.save(emp);
 	}
