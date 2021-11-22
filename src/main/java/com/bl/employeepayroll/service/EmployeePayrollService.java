@@ -37,6 +37,11 @@ public class EmployeePayrollService implements IEmployeePayrollService {
 		Employee emp = employeeRepo.findById(id).get();
 		emp.setName(employee.getName());
 		emp.setSalary(employee.getSalary());
+		emp.setGender(employee.getGender());
+		emp.setStartDate(employee.getStartDate());
+		emp.setNote(employee.getNote());
+		emp.setProfilePic(employee.getProfilePic());
+		emp.setDepartment(employee.getDepartment());
 		emp.setUpdated_at(LocalDateTime.now());
 		return employeeRepo.save(emp);
 	}
