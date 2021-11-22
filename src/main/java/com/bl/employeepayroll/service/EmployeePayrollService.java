@@ -1,59 +1,49 @@
 package com.bl.employeepayroll.service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.bl.employeepayroll.dto.EmployeeDTO;
 import com.bl.employeepayroll.model.Employee;
+import com.bl.employeepayroll.repository.IEmployeePayrollRepo;
 
 @Service
 public class EmployeePayrollService implements IEmployeePayrollService {
 	
-	private List<Employee> employeeList;
-	
-	public EmployeePayrollService() {
-		employeeList = new ArrayList<>();
-	}
+	@Autowired
+	private IEmployeePayrollRepo employeeRepo; 
 	
 	@Override
 	public Employee addEmployee(EmployeeDTO employeeDTO) {
 		Employee employee = new Employee(employeeDTO);
-		return employeeList.add(employee) ?  employee : null;
+		return employeeRepo.save(employee);
 	}
 
 	@Override
 	public List<Employee> getAllEmployees() {
-		return employeeList;
+		return employeeRepo.findAll();
 	}
 
 	@Override
 	public Employee getEmployee(long id) {
-		for (Employee employee : employeeList) {
-			if(employee.getId() == id ) {
-				return employee;
-			}
-		}
-		return null;
+		return employeeRepo.findById(id).get();
 	}
 
 	@Override
 	public Employee updateEmployee(long id, Employee employee) {
-		for (Employee emp : employeeList) {
-			if(emp.getId() == id ) {
-				emp.setName(employee.getName());
-				emp.setSalary(employee.getSalary());
-				emp.setUpdated_at(LocalDateTime.now());
-				return emp;
-			}
-		}		
-		return null;
+		Employee emp = employeeRepo.findById(id).get();
+		emp.setName(employee.getName());
+		emp.setSalary(employee.getSalary());
+		emp.setUpdated_at(LocalDateTime.now());
+		return employeeRepo.save(emp);
 	}
 
 	@Override
 	public void deleteEmployee(long id) {
-		employeeList.removeIf(emp->emp.getId()==id);
+		Employee employee = employeeRepo.findById(id).get();
+		employeeRepo.delete(employee);
 	}
 }
