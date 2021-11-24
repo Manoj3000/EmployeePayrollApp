@@ -1,6 +1,6 @@
 package com.bl.employeepayroll.exception;
 
-public class ErrorDetails {
+public class Response {
 
 	private Long statusCode;
 	private String message;
@@ -24,13 +24,13 @@ public class ErrorDetails {
 	public void setToken(Object token) {
 		this.token = token;
 	}
-	public ErrorDetails(String message, Long statusCode, Object token) {
+	public Response(String message, Long statusCode, Object token) {
 		super();
 		this.message = message;
 		this.statusCode = statusCode;
 		this.token = token;
 	}
-	public ErrorDetails() {
+	public Response() {
 		
 	}
 }

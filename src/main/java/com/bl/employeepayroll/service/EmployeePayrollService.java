@@ -2,6 +2,7 @@ package com.bl.employeepayroll.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,20 +36,20 @@ public class EmployeePayrollService implements IEmployeePayrollService {
 	@Override
 	public Employee getEmployee(String token) throws RegisterException {
 		Long id = tokenutil.decodeToken(token);
-		Employee employee = employeeRepo.findById(id).get();
-		if (employee != null)
-			return employee;
+		Optional<Employee> employee = employeeRepo.findById(id);
+		if (employee.isPresent())
+			return employee.get();
 		else
-			throw new RegisterException("user not present", 400);
+			throw new RegisterException("No Employee record exist for given id", 400);
 	}
 
 	@Override
 	public Employee updateEmployee(String token, EmployeeDTO employeeDTO) throws RegisterException {
 		Long id = tokenutil.decodeToken(token);
 
-		Employee emp = employeeRepo.findById(id).get();
-		System.out.println(emp);
-		if (emp != null) {
+		Optional<Employee> employee = employeeRepo.findById(id);
+		if (employee.isPresent()) {
+			Employee emp = employee.get();
 			emp.setName(employeeDTO.getName());
 			emp.setSalary(employeeDTO.getSalary());
 			emp.setGender(employeeDTO.getGender());
@@ -59,17 +60,18 @@ public class EmployeePayrollService implements IEmployeePayrollService {
 			emp.setUpdated_at(LocalDateTime.now());
 			return employeeRepo.save(emp);
 		} else {
-			throw new RegisterException("user not present", 400);
+			throw new RegisterException("No Employee record exist for given id", 400);
 		}
 	}
 
 	@Override
 	public void deleteEmployee(String token) throws RegisterException {
 		Long id = tokenutil.decodeToken(token);
-		Employee employee = employeeRepo.findById(id).get();
-		if (employee != null)
-			employeeRepo.delete(employee);
-		else
-			throw new RegisterException("user not present", 400);
+		Optional<Employee> employee = employeeRepo.findById(id);
+		if (employee.isPresent()) {
+			employeeRepo.delete(employee.get());
+		} else {
+			throw new RegisterException("No Employee record exist for given id", 400);
+		}
 	}
 }

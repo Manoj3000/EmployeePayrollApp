@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,7 +22,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bl.employeepayroll.dto.EmployeeDTO;
-import com.bl.employeepayroll.exception.ErrorDetails;
+import com.bl.employeepayroll.exception.Response;
 import com.bl.employeepayroll.exception.RegisterException;
 import com.bl.employeepayroll.model.Employee;
 import com.bl.employeepayroll.service.IEmployeePayrollService;
@@ -35,40 +34,47 @@ public class EmployeePayRollController {
 
 	@Autowired
 	private IEmployeePayrollService employeePayrollService;
-	
-    @Autowired
-    TokenUtil tokenutil;
 
-	@GetMapping("/hello")
+	@Autowired
+	TokenUtil tokenutil;
+
+	@GetMapping("/sayHello")
 	public String hello() {
 		return "Hello World";
 	}
 
-	@PostMapping("/employee")
-	public ErrorDetails addEmployee(@Valid @RequestBody EmployeeDTO employeeDTO) {
+	@PostMapping("/addEmployee")
+	public ResponseEntity<Response> addEmployee(@Valid @RequestBody EmployeeDTO employeeDTO) {
 		Employee employee = employeePayrollService.addEmployee(employeeDTO);
-		
-		return new ErrorDetails("user added succesfully", (long) 200, tokenutil.createToken(employee.getId()));
+		Response response = new Response("employee added succesfully", (long) 200,
+				tokenutil.createToken(employee.getId()));
+		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 
-	@GetMapping("/employees")
-	public List<Employee> getAllEmployees() {
-		return employeePayrollService.getAllEmployees();
+	@GetMapping("/getEmployees")
+	public ResponseEntity<Response> getAllEmployees() {
+		List<Employee> employees = employeePayrollService.getAllEmployees();
+		Response response = new Response("get employees successfully", (long) 200, employees);
+		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 
-	@GetMapping("/employee/")
-	public Employee getEmployee(@RequestHeader String token) throws RegisterException {
-		return employeePayrollService.getEmployee(token);
+	@GetMapping("/getEmployee")
+	public ResponseEntity<Response> getEmployee(@RequestHeader String token) throws RegisterException {
+		Employee employee = employeePayrollService.getEmployee(token);
+		Response response = new Response("get employee successfully", (long) 200, employee);
+		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 
-	@PutMapping("/employee")
-	public ErrorDetails updateEmployee(@RequestHeader String token, @Valid @RequestBody EmployeeDTO employeeDTO) throws RegisterException {
+	@PutMapping("/editEmployee")
+	public ResponseEntity<Response> updateEmployee(@RequestHeader String token,
+			@Valid @RequestBody EmployeeDTO employeeDTO) throws RegisterException {
 		Employee employee = employeePayrollService.updateEmployee(token, employeeDTO);
-		return new ErrorDetails("data updated succefully",(long) 200,employee);
+		Response response = new Response("employee updated succefully", (long) 200, employee);
+		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 
-	@DeleteMapping("/employee")
-	public ResponseEntity<HttpStatus> deleteEmploye(@RequestHeader String token) {
+	@DeleteMapping("/deleteEmployee")
+	public ResponseEntity<HttpStatus> deleteEmploye(@RequestHeader String token) throws RegisterException {
 		try {
 			employeePayrollService.deleteEmployee(token);
 			return new ResponseEntity<>(HttpStatus.OK);
@@ -76,15 +82,13 @@ public class EmployeePayRollController {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
+
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	public Map<String, String> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
-	   Map<String, String> errors = new HashMap<>();
-	 
-	   ex.getBindingResult().getFieldErrors().forEach(error ->
-	           errors.put(error.getField(), error.getDefaultMessage()));
-	 
-	   return errors;
+		Map<String, String> errors = new HashMap<>();
+		ex.getBindingResult().getFieldErrors()
+				.forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+		return errors;
 	}
 }
