@@ -3,6 +3,7 @@ package com.bl.employeepayroll.service;
 import java.util.List;
 
 import com.bl.employeepayroll.dto.EmployeeDTO;
+import com.bl.employeepayroll.exception.RegisterException;
 import com.bl.employeepayroll.model.Employee;
 
 public interface IEmployeePayrollService {
@@ -11,10 +12,10 @@ public interface IEmployeePayrollService {
 
 	public List<Employee> getAllEmployees();
 
-	public Employee getEmployee(long id);
+	public Employee getEmployee(String token) throws RegisterException;
 
-	public Employee updateEmployee(long id, EmployeeDTO employeeDTO);
+	public Employee updateEmployee(String token, EmployeeDTO employeeDTO) throws RegisterException;
 
-	public void deleteEmployee(long id);
+	public void deleteEmployee(String token) throws RegisterException;
 
 }

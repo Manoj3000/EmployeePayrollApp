@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,14 +23,21 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bl.employeepayroll.dto.EmployeeDTO;
+import com.bl.employeepayroll.exception.ErrorDetails;
+import com.bl.employeepayroll.exception.RegisterException;
 import com.bl.employeepayroll.model.Employee;
 import com.bl.employeepayroll.service.IEmployeePayrollService;
+import com.bl.employeepayroll.util.TokenUtil;
 
 @RestController
+@CrossOrigin
 public class EmployeePayRollController {
 
 	@Autowired
 	private IEmployeePayrollService employeePayrollService;
+	
+    @Autowired
+    TokenUtil tokenutil;
 
 	@GetMapping("/hello")
 	public String hello() {
@@ -37,9 +45,10 @@ public class EmployeePayRollController {
 	}
 
 	@PostMapping("/employee")
-	public Employee addEmployee(@Valid @RequestBody EmployeeDTO employeeDTO) {
+	public ErrorDetails addEmployee(@Valid @RequestBody EmployeeDTO employeeDTO) {
 		Employee employee = employeePayrollService.addEmployee(employeeDTO);
-		return employee;
+		
+		return new ErrorDetails("user added succesfully", (long) 200, tokenutil.createToken(employee.getId()));
 	}
 
 	@GetMapping("/employees")
@@ -47,20 +56,21 @@ public class EmployeePayRollController {
 		return employeePayrollService.getAllEmployees();
 	}
 
-	@GetMapping("/employee/{id}")
-	public Employee getEmployee(@PathVariable long id) {
-		return employeePayrollService.getEmployee(id);
+	@GetMapping("/employee/")
+	public Employee getEmployee(@RequestHeader String token) throws RegisterException {
+		return employeePayrollService.getEmployee(token);
 	}
 
 	@PutMapping("/employee")
-	public Employee updateEmployee(@RequestHeader long id, @Valid @RequestBody EmployeeDTO employeeDTO) {
-		return employeePayrollService.updateEmployee(id, employeeDTO);
+	public ErrorDetails updateEmployee(@RequestHeader String token, @Valid @RequestBody EmployeeDTO employeeDTO) throws RegisterException {
+		Employee employee = employeePayrollService.updateEmployee(token, employeeDTO);
+		return new ErrorDetails("data updated succefully",(long) 200,employee);
 	}
 
-	@DeleteMapping("/employee/{id}")
-	public ResponseEntity<HttpStatus> deleteEmploye(@PathVariable long id) {
+	@DeleteMapping("/employee")
+	public ResponseEntity<HttpStatus> deleteEmploye(@RequestHeader String token) {
 		try {
-			employeePayrollService.deleteEmployee(id);
+			employeePayrollService.deleteEmployee(token);
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

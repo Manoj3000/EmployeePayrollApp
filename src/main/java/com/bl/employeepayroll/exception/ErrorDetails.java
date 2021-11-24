@@ -1,29 +1,36 @@
 package com.bl.employeepayroll.exception;
 
-import java.util.Date;
-
 public class ErrorDetails {
 
-	private Date timestamp;
+	private Long statusCode;
 	private String message;
-	private String details;
-
-	public ErrorDetails(Date timestamp, String message, String details) {
-		super();
-		this.timestamp = timestamp;
-		this.message = message;
-		this.details = details;
-	}
-
-	public Date getTimestamp() {
-		return timestamp;
-	}
-
+	private Object token;
+	
 	public String getMessage() {
 		return message;
 	}
-
-	public String getDetails() {
-		return details;
+	public void setMessage(String message) {
+		this.message = message;
+	}
+	public Long getStatusCode() {
+		return statusCode;
+	}
+	public void setStatusCode(long l) {
+		this.statusCode = l;
+	}
+	public Object getToken() {
+		return token;
+	}
+	public void setToken(Object token) {
+		this.token = token;
+	}
+	public ErrorDetails(String message, Long statusCode, Object token) {
+		super();
+		this.message = message;
+		this.statusCode = statusCode;
+		this.token = token;
+	}
+	public ErrorDetails() {
+		
 	}
 }
