@@ -46,8 +46,7 @@ public class EmployeePayRollController {
 	@PostMapping("/addEmployee")
 	public ResponseEntity<Response> addEmployee(@Valid @RequestBody EmployeeDTO employeeDTO) {
 		Employee employee = employeePayrollService.addEmployee(employeeDTO);
-		Response response = new Response("employee added succesfully", (long) 200,
-				tokenutil.createToken(employee.getId()));
+		Response response = new Response("employee added succesfully", (long) 200, tokenutil.createToken(employee.getId()));
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 
@@ -77,6 +76,26 @@ public class EmployeePayRollController {
 	public ResponseEntity<HttpStatus> deleteEmploye(@RequestHeader String token) throws RegisterException {
 		try {
 			employeePayrollService.deleteEmployee(token);
+			return new ResponseEntity<>(HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@DeleteMapping("/deleteEmployees")
+	public ResponseEntity<HttpStatus> deleteMultipleEmployees(@RequestHeader List<Long> ids) {
+		try {
+			employeePayrollService.deleteMultipleEmployees(ids);
+			return new ResponseEntity<>(HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	@DeleteMapping("/deleteAll")
+	public ResponseEntity<HttpStatus> deleteAllEmploye() {
+		try {
+			employeePayrollService.deleteAllEmployee();
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

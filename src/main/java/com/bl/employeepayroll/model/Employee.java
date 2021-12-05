@@ -31,11 +31,11 @@ public class Employee {
 	private String startDate;
 	private String note;
 	private String profilePic;
-	
+
 	@ElementCollection
 	@CollectionTable(name = "employee_department", joinColumns = @JoinColumn(name = "employee_id"))
 	private List<String> department;
-	
+
 	private LocalDateTime created_at;
 	private LocalDateTime updated_at;
 

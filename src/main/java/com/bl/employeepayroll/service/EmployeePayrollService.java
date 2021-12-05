@@ -74,4 +74,18 @@ public class EmployeePayrollService implements IEmployeePayrollService {
 			throw new RegisterException("No Employee record exist for given id", 400);
 		}
 	}
+
+	@Override
+	public void deleteAllEmployee() {
+		employeeRepo.deleteAll();
+	}
+
+	@Override
+	public void deleteMultipleEmployees(List<Long> ids) {
+		 ids.forEach(id->{
+			 if(employeeRepo.existsById(id)){
+				 employeeRepo.deleteById(id);
+			 }
+		 });
+	}
 }

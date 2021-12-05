@@ -18,4 +18,8 @@ public interface IEmployeePayrollService {
 
 	public void deleteEmployee(String token) throws RegisterException;
 
+	public void deleteAllEmployee();
+
+	public void deleteMultipleEmployees(List<Long> ids);
+
 }
