@@ -23,6 +23,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bl.employeepayroll.dto.EmployeeDTO;
 import com.bl.employeepayroll.exception.Response;
+import com.bl.employeepayroll.exception.UserNotFoundException;
+import com.bl.employeepayroll.exception.LoginException;
 import com.bl.employeepayroll.exception.RegisterException;
 import com.bl.employeepayroll.model.Employee;
 import com.bl.employeepayroll.service.IEmployeePayrollService;
@@ -42,40 +44,47 @@ public class EmployeePayRollController {
 	public String hello() {
 		return "Hello World";
 	}
+	
+	@GetMapping("/login")
+	public ResponseEntity<Response> checkUser(@RequestHeader(required = false) String username, @RequestHeader String password) throws UserNotFoundException, LoginException{
+		String isLogin = employeePayrollService.checkUser(username, password);
+		Response response = new Response("Login successfully",(long)200, isLogin);
+		return new ResponseEntity<Response>(response, HttpStatus.OK);
+	}
 
 	@PostMapping("/addEmployee")
-	public ResponseEntity<Response> addEmployee(@Valid @RequestBody EmployeeDTO employeeDTO) {
-		Employee employee = employeePayrollService.addEmployee(employeeDTO);
+	public ResponseEntity<Response> addEmployee(@RequestHeader String loginToken, @Valid @RequestBody EmployeeDTO employeeDTO) throws LoginException {
+		Employee employee = employeePayrollService.addEmployee(loginToken, employeeDTO);
 		Response response = new Response("employee added succesfully", (long) 200, tokenutil.createToken(employee.getId()));
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 
 	@GetMapping("/getEmployees")
-	public ResponseEntity<Response> getAllEmployees() {
-		List<Employee> employees = employeePayrollService.getAllEmployees();
+	public ResponseEntity<Response> getAllEmployees(@RequestHeader String loginToken) throws LoginException {
+		List<Employee> employees = employeePayrollService.getAllEmployees(loginToken);
 		Response response = new Response("get employees successfully", (long) 200, employees);
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 
 	@GetMapping("/getEmployee")
-	public ResponseEntity<Response> getEmployee(@RequestHeader String token) throws RegisterException {
-		Employee employee = employeePayrollService.getEmployee(token);
+	public ResponseEntity<Response> getEmployee(@RequestHeader String loginToken, @RequestHeader Long id) throws RegisterException, LoginException {
+		Employee employee = employeePayrollService.getEmployee(loginToken, id);
 		Response response = new Response("get employee successfully", (long) 200, employee);
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 
 	@PutMapping("/editEmployee")
-	public ResponseEntity<Response> updateEmployee(@RequestHeader String token,
-			@Valid @RequestBody EmployeeDTO employeeDTO) throws RegisterException {
-		Employee employee = employeePayrollService.updateEmployee(token, employeeDTO);
+	public ResponseEntity<Response> updateEmployee(@RequestHeader String loginToken, @RequestHeader Long id,
+			@Valid @RequestBody EmployeeDTO employeeDTO) throws RegisterException, LoginException {
+		Employee employee = employeePayrollService.updateEmployee(loginToken, id, employeeDTO);
 		Response response = new Response("employee updated succefully", (long) 200, employee);
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 
 	@DeleteMapping("/deleteEmployee")
-	public ResponseEntity<HttpStatus> deleteEmploye(@RequestHeader String token) throws RegisterException {
+	public ResponseEntity<HttpStatus> deleteEmploye(@RequestHeader String loginToken, @RequestHeader Long id) throws RegisterException {
 		try {
-			employeePayrollService.deleteEmployee(token);
+			employeePayrollService.deleteEmployee(loginToken, id);
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -83,9 +92,9 @@ public class EmployeePayRollController {
 	}
 
 	@DeleteMapping("/deleteEmployees")
-	public ResponseEntity<HttpStatus> deleteMultipleEmployees(@RequestHeader List<Long> ids) {
+	public ResponseEntity<HttpStatus> deleteMultipleEmployees(@RequestHeader String loginToken, @RequestHeader List<Long> ids) {
 		try {
-			employeePayrollService.deleteMultipleEmployees(ids);
+			employeePayrollService.deleteMultipleEmployees(loginToken, ids);
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
